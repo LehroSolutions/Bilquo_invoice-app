@@ -1,36 +1,165 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# bilquo
 
-## Getting Started
+> Professional Invoice & Quote Generator by Lehro Solutions
 
-First, run the development server:
+Bilquo is a modern, open-source web application designed to streamline the creation of professional invoices and quotes. Built with Next.js and TypeScript, Bilquo offers a clean, intuitive interface for businesses and freelancers to generate, customize, and export billing documents with ease.
+
+## 🚀 Features
+
+### Core Functionality
+- **Dual Document Types**: Create both invoices and quotes from a single interface
+- **Real-time Preview**: See your document update instantly as you type
+- **PDF Export**: Generate high-quality PDF documents with a single click
+- **Responsive Design**: Works seamlessly on desktop, tablet, and mobile devices
+
+### Customization Options
+- **Multiple Templates**: Choose from Classic, Modern, and Professional design templates
+- **Company Branding**: Upload your company logo to appear on all documents
+- **Currency Support**: Select from 8 major currencies including USD, EUR, GBP, ZAR, CAD, AUD, INR, and JPY
+- **Flexible Line Items**: Add unlimited line items with descriptions, quantities, and rates
+- **Tax Configuration**: Set custom tax rates for accurate billing
+
+### Professional Features
+- **Automatic Calculations**: Subtotal, tax, and total amounts calculated in real-time
+- **Document Numbering**: Custom document numbering system (INV-001, QUOTE-001, etc.)
+- **Date Management**: Set issue dates and due dates for payment tracking
+- **Notes & Terms**: Add custom notes and payment terms to your documents
+
+## 🛠 Technology Stack
+
+- **Frontend**: Next.js 16 with React 18
+- **Language**: TypeScript for type safety and better development experience
+- **Styling**: Tailwind CSS for modern, responsive design
+- **Icons**: Lucide React for consistent, beautiful icons
+- **PDF Generation**: html-to-image + jsPDF for reliable PDF export
+- **Development**: Hot reload with Turbopack for fast development
+
+## 📦 Installation
+
+### Prerequisites
+- Node.js 18 or higher
+- npm or yarn package manager
+
+### Quick Start
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/lehro-solutions/bilquo.git
+   cd bilquo
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Run the development server**
+   ```bash
+   npm run dev
+   ```
+
+4. **Open your browser**
+   Navigate to [http://localhost:3000](http://localhost:3000)
+
+### Production Build
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm run build
+npm start
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 🎯 Usage Guide
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Creating Your First Invoice
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. **Enter Company Information**
+   - Fill in your company details (name, address, email, phone)
+   - Upload your company logo (optional but recommended)
 
-## Learn More
+2. **Add Client Details**
+   - Enter client information for the invoice/quote
 
-To learn more about Next.js, take a look at the following resources:
+3. **Configure Document Settings**
+   - Choose between Invoice or Quote
+   - Set document number, date, and due date
+   - Select your preferred currency
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+4. **Add Line Items**
+   - Click "Add Item" for each product or service
+   - Enter descriptions, quantities, and rates
+   - Set the appropriate tax rate
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+5. **Customize Appearance**
+   - Choose from available templates
+   - Add notes and payment terms
 
-## Deploy on Vercel
+6. **Export Your Document**
+   - Review the real-time preview
+   - Click "Export PDF" to download your document
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🏗 Project Structure
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+bilquo/
+├── src/
+│   └── app/
+│       ├── components/
+│       │   ├── InvoiceForm.tsx      # Main form component
+│       │   ├── InvoicePreview.tsx   # Preview and PDF export
+│       │   ├── LogoUploader.tsx     # Logo upload functionality
+│       │   └── TemplateSelector.tsx # Template selection
+│       ├── types.ts                 # TypeScript type definitions
+│       ├── page.tsx                 # Main application page
+│       ├── layout.tsx               # Root layout component
+│       └── globals.css              # Global styles
+├── public/                          # Static assets
+├── package.json                     # Dependencies and scripts
+└── README.md                        # This file
+```
+
+## 🤝 Contributing
+
+Lehro Solutions welcomes contributions from the community! Whether you're fixing bugs, adding features, or improving documentation, your help is appreciated.
+
+### Development Setup
+
+1. Fork the repository
+2. Create a feature branch: `git checkout -b feature/amazing-feature`
+3. Make your changes
+4. Run tests: `npm test` (when available)
+5. Commit your changes: `git commit -m 'Add amazing feature'`
+6. Push to the branch: `git push origin feature/amazing-feature`
+7. Open a Pull Request
+
+### Code Style
+
+- Use TypeScript for all new code
+- Follow the existing code formatting
+- Write meaningful commit messages
+- Update documentation as needed
+
+## 📄 License
+
+Bilquo is licensed under the MIT License. See the [LICENSE](LICENSE) file for more information.
+
+## 🆘 Support
+
+- **Issues**: Report bugs or request features via [GitHub Issues](https://github.com/lehro-solutions/bilquo/issues)
+- **Discussions**: Join community discussions and share ideas
+- **Documentation**: Check this README and inline code comments
+
+## 🌟 About Lehro Solutions
+
+Lehro Solutions is committed to creating open-source tools that empower businesses and developers. Bilquo represents our dedication to providing high-quality, accessible software for everyday business needs.
+
+### Our Mission
+- Democratize professional business tools
+- Foster community-driven development
+- Maintain high standards of code quality
+- Provide excellent documentation and support
+
+---
+
+**Made with ❤️ by Lehro Solutions**
+
+*If you find Bilquo useful, please consider starring the repository and sharing it with your network!*
