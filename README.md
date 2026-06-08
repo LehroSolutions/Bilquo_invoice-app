@@ -2,12 +2,12 @@
 
 > Professional Invoice & Quote Generator by Lehro Solutions
 
-Bilquo is a modern, open-source web application designed to streamline the creation of professional invoices and quotes. Built with Next.js and TypeScript, Bilquo offers a clean, intuitive interface for businesses and freelancers to generate, customize, and export billing documents with ease.
+Bilquo is a modern, open-source web application designed to streamline the creation of professional invoices, quotes, and payment receipts. Built with Next.js and TypeScript, Bilquo offers a clean, intuitive interface for businesses and freelancers to generate, customize, and export billing documents with ease.
 
 ## 🚀 Features
 
 ### Core Functionality
-- **Dual Document Types**: Create both invoices and quotes from a single interface
+- **Three Document Types**: Create invoices, quotes, and receipts from a single interface
 - **Real-time Preview**: See your document update instantly as you type
 - **PDF Export**: Generate high-quality PDF documents with a single click
 - **Responsive Design**: Works seamlessly on desktop, tablet, and mobile devices
@@ -18,11 +18,12 @@ Bilquo is a modern, open-source web application designed to streamline the creat
 - **Currency Support**: Select from 8 major currencies including USD, EUR, GBP, ZAR, CAD, AUD, INR, and JPY
 - **Flexible Line Items**: Add unlimited line items with descriptions, quantities, and rates
 - **Tax Configuration**: Set custom tax rates for accurate billing
+- **Receipt Capture**: Record received amounts, payment methods, references, and invoice links for clean payment records
 
 ### Professional Features
 - **Automatic Calculations**: Subtotal, tax, and total amounts calculated in real-time
-- **Document Numbering**: Custom document numbering system (INV-001, QUOTE-001, etc.)
-- **Date Management**: Set issue dates and due dates for payment tracking
+- **Document Numbering**: Custom document numbering system (INV-001, QUOTE-001, RCPT-001, etc.)
+- **Date Management**: Set issue dates, due dates, and payment receipt dates for tracking
 - **Notes & Terms**: Add custom notes and payment terms to your documents
 
 ## 🛠 Technology Stack
@@ -80,8 +81,8 @@ npm start
    - Enter client information for the invoice/quote
 
 3. **Configure Document Settings**
-   - Choose between Invoice or Quote
-   - Set document number, date, and due date
+   - Choose between Invoice, Quote, or Receipt
+   - Set document number, date, and due date or payment receipt date
    - Select your preferred currency
 
 4. **Add Line Items**
@@ -91,6 +92,7 @@ npm start
 
 5. **Customize Appearance**
    - Choose from available templates
+   - For receipts, record the original invoice number, payment method, payment reference, and amount received
    - Add notes and payment terms
 
 6. **Export Your Document**

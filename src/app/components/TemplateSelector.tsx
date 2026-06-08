@@ -1,8 +1,8 @@
 'use client';
 
 import React from 'react';
-import { LayoutTemplate, Check } from 'lucide-react';
 import { TemplateType } from '../types';
+import { CheckIcon, LayoutTemplateIcon } from './icons';
 
 interface TemplateOption {
   value: TemplateType;
@@ -24,8 +24,8 @@ interface TemplateSelectorProps {
 export default function TemplateSelector({ selected, onChange }: TemplateSelectorProps) {
   return (
     <div className="space-y-2">
-      <label className="block text-sm font-medium text-gray-700">
-        <LayoutTemplate size={16} className="inline mr-1" />
+        <label className="block text-sm font-medium text-gray-700">
+        <LayoutTemplateIcon size={16} className="inline mr-1" />
         Design Template
       </label>
       <div className="grid grid-cols-3 gap-2">
@@ -42,7 +42,7 @@ export default function TemplateSelector({ selected, onChange }: TemplateSelecto
           >
             {selected === template.value && (
               <span className="absolute top-1 right-1 text-blue-500">
-                <Check size={14} />
+                <CheckIcon size={14} />
               </span>
             )}
             <span className="block text-sm font-semibold text-gray-800">{template.label}</span>

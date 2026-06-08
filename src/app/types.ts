@@ -19,8 +19,14 @@ export interface ClientInfo {
   email: string;
 }
 
-export type DocumentType = 'invoice' | 'quote';
+export type DocumentType = 'invoice' | 'quote' | 'receipt';
 export type TemplateType = 'classic' | 'modern' | 'professional';
+
+export const documentTypeLabels: Record<DocumentType, string> = {
+  invoice: 'Invoice',
+  quote: 'Quote',
+  receipt: 'Receipt',
+};
 
 export const currencies = [
   { code: 'USD', label: 'US Dollar', symbol: '$' },
@@ -40,6 +46,11 @@ export interface InvoiceData {
   documentNumber: string;
   date: string;
   dueDate: string;
+  invoiceReference: string;
+  amountReceived: number;
+  paymentMethod: string;
+  paymentReference: string;
+  receivedBy: string;
   company: CompanyInfo;
   client: ClientInfo;
   lineItems: LineItem[];
@@ -56,6 +67,11 @@ export const defaultBilquoData: InvoiceData = {
   documentNumber: 'INV-001',
   date: new Date().toISOString().split('T')[0],
   dueDate: '',
+  invoiceReference: '',
+  amountReceived: 0,
+  paymentMethod: 'Bank transfer',
+  paymentReference: '',
+  receivedBy: '',
   company: {
     name: '',
     address: '',
@@ -93,4 +109,12 @@ export function calculateTax(subtotal: number, taxRate: number): number {
 
 export function calculateTotal(subtotal: number, tax: number): number {
   return subtotal + tax;
+}
+
+export function calculateBalanceDue(total: number, amountReceived: number): number {
+  return Math.max(total - amountReceived, 0);
+}
+
+export function calculateOverpayment(total: number, amountReceived: number): number {
+  return Math.max(amountReceived - total, 0);
 }

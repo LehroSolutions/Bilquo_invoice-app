@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useRef } from 'react';
-import { Upload, X, ImageIcon } from 'lucide-react';
+import { ImageIcon, XIcon } from './icons';
 
 interface LogoUploaderProps {
   logo: string | null;
@@ -43,7 +43,7 @@ export default function LogoUploader({ logo, onChange }: LogoUploaderProps) {
             className="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1 hover:bg-red-600 transition-colors cursor-pointer"
             title="Remove logo"
           >
-            <X size={14} />
+            <XIcon size={14} />
           </button>
         </div>
       ) : (
@@ -52,7 +52,7 @@ export default function LogoUploader({ logo, onChange }: LogoUploaderProps) {
           onClick={() => inputRef.current?.click()}
           className="flex flex-col items-center justify-center w-full h-24 border-2 border-dashed border-gray-300 rounded-lg hover:border-blue-500 hover:bg-blue-50 transition-colors cursor-pointer"
         >
-          <ImageIcon size={24} className="text-gray-400 mb-1" />
+          <ImageIcon size={24} className="mb-1 text-gray-400" />
           <span className="text-sm text-gray-500">Click to upload logo</span>
         </button>
       )}
