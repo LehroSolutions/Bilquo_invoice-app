@@ -1,13 +1,20 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useSyncExternalStore } from 'react';
 import InvoiceForm from './components/InvoiceForm';
 import InvoicePreview from './components/InvoicePreview';
 import { ReceiptIcon } from './components/icons';
 import { InvoiceData, calculateSubtotal, calculateTax, calculateTotal, defaultBilquoData } from './types';
 
+const subscribeToToday = () => () => {};
+
+const getTodayIsoDate = () => new Date().toISOString().split('T')[0];
+
 export default function Home() {
   const [data, setData] = useState<InvoiceData>(defaultBilquoData);
+  const todayIsoDate = useSyncExternalStore(subscribeToToday, getTodayIsoDate, () => '');
+  const resolvedData = data.date ? data : { ...data, date: todayIsoDate };
+
   const handleChange = (next: InvoiceData) => {
     const subtotal = calculateSubtotal(next.lineItems);
     const tax = calculateTax(subtotal, next.taxRate);
@@ -34,8 +41,8 @@ export default function Home() {
       </header>
       <main className="mx-auto max-w-[1600px] px-6 py-6">
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-          <InvoiceForm data={data} onChange={handleChange} />
-          <InvoicePreview data={data} />
+          <InvoiceForm data={resolvedData} onChange={handleChange} />
+          <InvoicePreview data={resolvedData} />
         </div>
       </main>
     </div>

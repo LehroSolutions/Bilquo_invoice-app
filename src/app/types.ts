@@ -65,7 +65,7 @@ export interface InvoiceData {
 export const defaultBilquoData: InvoiceData = {
   documentType: 'invoice',
   documentNumber: 'INV-001',
-  date: new Date().toISOString().split('T')[0],
+  date: '',
   dueDate: '',
   invoiceReference: '',
   amountReceived: 0,

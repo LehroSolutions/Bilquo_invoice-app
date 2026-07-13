@@ -1,167 +1,61 @@
-# bilquo
+# Bilquo
 
-> Professional Invoice & Quote Generator by Lehro Solutions
+Bilquo is a Next.js invoice, quote, and receipt generator that can run as a web app or be packaged into desktop installers for Windows, macOS, and Linux.
 
-Bilquo is a modern, open-source web application designed to streamline the creation of professional invoices, quotes, and payment receipts. Built with Next.js and TypeScript, Bilquo offers a clean, intuitive interface for businesses and freelancers to generate, customize, and export billing documents with ease.
+## What It Is Built On
 
-## 🚀 Features
+- Next.js 16 App Router
+- React 19
+- TypeScript
+- Tailwind CSS 4
+- `html-to-image` and `jsPDF` for PDF export
+- Electron for the packaged desktop shell
 
-### Core Functionality
-- **Three Document Types**: Create invoices, quotes, and receipts from a single interface
-- **Real-time Preview**: See your document update instantly as you type
-- **PDF Export**: Generate high-quality PDF documents with a single click
-- **Responsive Design**: Works seamlessly on desktop, tablet, and mobile devices
+## Run It Locally
 
-### Customization Options
-- **Multiple Templates**: Choose from Classic, Modern, and Professional design templates
-- **Company Branding**: Upload your company logo to appear on all documents
-- **Currency Support**: Select from 8 major currencies including USD, EUR, GBP, ZAR, CAD, AUD, INR, and JPY
-- **Flexible Line Items**: Add unlimited line items with descriptions, quantities, and rates
-- **Tax Configuration**: Set custom tax rates for accurate billing
-- **Receipt Capture**: Record received amounts, payment methods, references, and invoice links for clean payment records
+```bash
+npm install
+npm run dev
+```
 
-### Professional Features
-- **Automatic Calculations**: Subtotal, tax, and total amounts calculated in real-time
-- **Document Numbering**: Custom document numbering system (INV-001, QUOTE-001, RCPT-001, etc.)
-- **Date Management**: Set issue dates, due dates, and payment receipt dates for tracking
-- **Notes & Terms**: Add custom notes and payment terms to your documents
+Open `http://localhost:3000`.
 
-## 🛠 Technology Stack
-
-- **Frontend**: Next.js 16 with React 18
-- **Language**: TypeScript for type safety and better development experience
-- **Styling**: Tailwind CSS for modern, responsive design
-- **Icons**: Lucide React for consistent, beautiful icons
-- **PDF Generation**: html-to-image + jsPDF for reliable PDF export
-- **Development**: Hot reload with Turbopack for fast development
-
-## 📦 Installation
-
-### Prerequisites
-- Node.js 18 or higher
-- npm or yarn package manager
-
-### Quick Start
-
-1. **Clone the repository**
-   ```bash
-   git clone https://github.com/lehro-solutions/bilquo.git
-   cd bilquo
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Run the development server**
-   ```bash
-   npm run dev
-   ```
-
-4. **Open your browser**
-   Navigate to [http://localhost:3000](http://localhost:3000)
-
-### Production Build
+## Build The Static App
 
 ```bash
 npm run build
 npm start
 ```
 
-## 🎯 Usage Guide
+`npm start` serves the exported `out` folder with the same static file server used by the desktop shell.
 
-### Creating Your First Invoice
+## Build The Desktop Package
 
-1. **Enter Company Information**
-   - Fill in your company details (name, address, email, phone)
-   - Upload your company logo (optional but recommended)
-
-2. **Add Client Details**
-   - Enter client information for the invoice/quote
-
-3. **Configure Document Settings**
-   - Choose between Invoice, Quote, or Receipt
-   - Set document number, date, and due date or payment receipt date
-   - Select your preferred currency
-
-4. **Add Line Items**
-   - Click "Add Item" for each product or service
-   - Enter descriptions, quantities, and rates
-   - Set the appropriate tax rate
-
-5. **Customize Appearance**
-   - Choose from available templates
-   - For receipts, record the original invoice number, payment method, payment reference, and amount received
-   - Add notes and payment terms
-
-6. **Export Your Document**
-   - Review the real-time preview
-   - Click "Export PDF" to download your document
-
-## 🏗 Project Structure
-
-```
-bilquo/
-├── src/
-│   └── app/
-│       ├── components/
-│       │   ├── InvoiceForm.tsx      # Main form component
-│       │   ├── InvoicePreview.tsx   # Preview and PDF export
-│       │   ├── LogoUploader.tsx     # Logo upload functionality
-│       │   └── TemplateSelector.tsx # Template selection
-│       ├── types.ts                 # TypeScript type definitions
-│       ├── page.tsx                 # Main application page
-│       ├── layout.tsx               # Root layout component
-│       └── globals.css              # Global styles
-├── public/                          # Static assets
-├── package.json                     # Dependencies and scripts
-└── README.md                        # This file
+```bash
+npm run build:desktop
 ```
 
-## 🤝 Contributing
+That command packages the app for the current platform.
 
-Lehro Solutions welcomes contributions from the community! Whether you're fixing bugs, adding features, or improving documentation, your help is appreciated.
+- Windows: `release/Bilquo-<version>-setup.exe`
+- macOS: `release/Bilquo-<version>-<arch>.dmg` and `release/Bilquo-<version>-<arch>.zip`
+- Linux: `release/Bilquo-<version>-<arch>.AppImage`
 
-### Development Setup
+Use the explicit platform scripts if you are building from CI or want to target a specific OS:
 
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/amazing-feature`
-3. Make your changes
-4. Run tests: `npm test` (when available)
-5. Commit your changes: `git commit -m 'Add amazing feature'`
-6. Push to the branch: `git push origin feature/amazing-feature`
-7. Open a Pull Request
+```bash
+npm run build:desktop:win
+npm run build:desktop:mac
+npm run build:desktop:linux
+```
 
-### Code Style
+## Documentation
 
-- Use TypeScript for all new code
-- Follow the existing code formatting
-- Write meaningful commit messages
-- Update documentation as needed
+- [Operating guide](docs/README.md)
+- [Architecture guide](docs/ARCHITECTURE.md)
 
-## 📄 License
+## Repository Layout
 
-Bilquo is licensed under the MIT License. See the [LICENSE](LICENSE) file for more information.
-
-## 🆘 Support
-
-- **Issues**: Report bugs or request features via [GitHub Issues](https://github.com/lehro-solutions/bilquo/issues)
-- **Discussions**: Join community discussions and share ideas
-- **Documentation**: Check this README and inline code comments
-
-## 🌟 About Lehro Solutions
-
-Lehro Solutions is committed to creating open-source tools that empower businesses and developers. Bilquo represents our dedication to providing high-quality, accessible software for everyday business needs.
-
-### Our Mission
-- Democratize professional business tools
-- Foster community-driven development
-- Maintain high standards of code quality
-- Provide excellent documentation and support
-
----
-
-**Made with ❤️ by Lehro Solutions**
-
-*If you find Bilquo useful, please consider starring the repository and sharing it with your network!*
+- `src/app/` contains the Next.js app, UI, and invoice data model.
+- `desktop/` contains the Electron entrypoint and the static file server.
+- `docs/` contains the operator and architecture references.

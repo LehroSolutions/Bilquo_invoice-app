@@ -1,0 +1,66 @@
+name: Desktop Builds
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - 'desktop/**'
+      - 'docs/**'
+      - 'src/**'
+      - 'next.config.ts'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/desktop-build.yml'
+  pull_request:
+    paths:
+      - 'desktop/**'
+      - 'docs/**'
+      - 'src/**'
+      - 'next.config.ts'
+      - 'package.json'
+      - 'package-lock.json'
+      - '.github/workflows/desktop-build.yml'
+
+jobs:
+  build:
+    name: Build ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: windows-latest
+            command: npm.cmd run build:desktop:win
+            artifact: release/*.exe
+          - os: macos-latest
+            command: npm run build:desktop:mac
+            artifact: |
+              release/*.dmg
+              release/*.zip
+          - os: ubuntu-latest
+            command: npm run build:desktop:linux
+            artifact: release/*.AppImage
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build desktop package
+        run: ${{ matrix.command }}
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: bilquo-${{ matrix.os }}
+          path: ${{ matrix.artifact }}
