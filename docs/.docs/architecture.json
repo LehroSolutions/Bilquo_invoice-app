@@ -1,0 +1,14 @@
+{
+  "product": "Bilquo",
+  "title": "Architecture",
+  "group": "Guides",
+  "path": ".docs/architecture.md",
+  "lead": "Local-first commercial document studio for invoices, quotes, and receipts.",
+  "content_markdown": "# Bilquo Architecture\n\n  ## Intent\n  Local-first commercial document studio for invoices, quotes, and receipts.\n\n  ## Runtime shape\n  - Domain: **Billing / document generation**\n  - Primary stack: Next.js, React, TypeScript, Tailwind CSS, jsPDF\n  - Key entrypoints:\n- `src/app/page.tsx`\n- `src/app/components/InvoiceForm.tsx`\n- `src/app/components/InvoicePreview.tsx`\n\n  ## Boundaries\n  - Validate inputs at trust boundaries.\n  - Keep authorization explicit near data access.\n  - Prefer recoverable errors over silent failure.\n  - Keep side effects isolated and observable.\n\n  ## Related\n  - [Design System](./design-system.md)\n  - [Security](./security.md)\n  - [ADR-0001](./adr-0001-docs-system.md)\n  - [Roadmap](./roadmap.md)\n",
+  "layout": "quantumide-ultra-link",
+  "theme": {
+    "mode": "light",
+    "accent": "#2563eb",
+    "css": "design-system.css"
+  }
+}

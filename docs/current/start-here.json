@@ -1,0 +1,71 @@
+{
+  "schemaVersion": "1.0",
+  "slug": "start-here",
+  "title": "Start Here",
+  "status": "current",
+  "audience": [
+    "Business operators",
+    "Developers",
+    "Contributors"
+  ],
+  "useWhen": "Use the corresponding current guide for this task.",
+  "sourceOfTruth": "current/start-here.md",
+  "counterparts": {
+    "markdown": "current/start-here.md",
+    "html": "current/start-here.html",
+    "json": "current/start-here.json"
+  },
+  "summary": "A local-first commercial document studio for invoices, quotes, and receipts.",
+  "sections": [
+    {
+      "id": "purpose",
+      "label": "Purpose"
+    },
+    {
+      "id": "on-this-page",
+      "label": "On this page"
+    },
+    {
+      "id": "guidance",
+      "label": "Guidance"
+    },
+    {
+      "id": "verification",
+      "label": "Verification"
+    },
+    {
+      "id": "related-guides",
+      "label": "Related guides"
+    },
+    {
+      "id": "product-route",
+      "label": "Product route"
+    },
+    {
+      "id": "latest-public-changes",
+      "label": "Latest public changes"
+    },
+    {
+      "id": "choose-a-guide",
+      "label": "Choose a guide"
+    }
+  ],
+  "relatedGuides": [
+    "architecture",
+    "quality",
+    "contributing"
+  ],
+  "keywords": [
+    "bilquo",
+    "start-here",
+    "documentation",
+    "current"
+  ],
+  "lastReviewed": "2026-07-13",
+  "sourceChecksum": "29ebf382db7667773f37b5196e39680a945c2abef9fcc677a8cb6ffd32d3eac6",
+  "generatedAt": "2026-07-13T11:47:55.573635+00:00",
+  "release": "archive-2026-07-13",
+  "validation": {
+    "state": "generated"
+  }
+}

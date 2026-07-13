@@ -1,0 +1,14 @@
+{
+  "product": "Bilquo",
+  "title": "How To Use",
+  "group": "Guides",
+  "path": "how-to-use.md",
+  "lead": "Bilquo is a local-first invoice, quote, and receipt studio.",
+  "content_markdown": "# How to Use Bilquo\n\nBilquo is a local-first invoice, quote, and receipt studio.\n\n## 1) Install & start\n\n```bash\nbun install\nbun run dev\n```\n\nOpen http://localhost:3000\n\nProduction:\n\n```bash\nbun run build\nbun run start\n```\n\n## 2) Create a document\n1. Choose **Invoice**, **Quote**, or **Receipt**\n2. Enter company and client details\n3. Add line items, tax, and notes\n4. Review the live preview\n5. Export PDF\n\n## 3) Drafts & portability\n- Drafts autosave in the browser\n- Use **Import JSON** / **Export JSON** to move work between machines\n- Use **New document** to reset\n\n## 4) Tips\n- Upload a logo for branding\n- Switch templates (Classic / Modern / Professional)\n- Receipt mode can auto-fill amount received\n\n## Related\n- [INSTALL.md](../../INSTALL.md)\n- [Architecture](./architecture.md)\n- [Security](./security.md)\n",
+  "layout": "quantumide-ultra-link",
+  "theme": {
+    "mode": "light",
+    "accent": "#2563eb",
+    "css": "design-system.css"
+  }
+}

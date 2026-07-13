@@ -1,0 +1,14 @@
+{
+  "product": "Bilquo",
+  "title": "Upgrade Completion 2026 07 10",
+  "group": "Project",
+  "path": ".docs/UPGRADE_COMPLETION_2026-07-10.md",
+  "lead": "Run npm run build after restoring locked dependencies.",
+  "content_markdown": "# 2026 Upgrade Completion\n\n## Outcome\n\n- Local-first draft recovery with debounced autosave.\n- Quieter responsive workspace shell.\n- JSON import/export for portable drafts.\n- New-document reset control with accessible focus treatment.\n\n## Verification gates\n\nRun `npm run build` after restoring locked dependencies.\n",
+  "layout": "quantumide-ultra-link",
+  "theme": {
+    "mode": "light",
+    "accent": "#2563eb",
+    "css": "design-system.css"
+  }
+}

@@ -38,8 +38,8 @@ Bilquo is a modern, open-source web application designed to streamline the creat
 ## 📦 Installation
 
 ### Prerequisites
-- Node.js 18 or higher
-- npm or yarn package manager
+- Bun 1.1+ (or Node.js 20+)
+- Bun (recommended) or Node.js 20+
 
 ### Quick Start
 
@@ -51,12 +51,12 @@ Bilquo is a modern, open-source web application designed to streamline the creat
 
 2. **Install dependencies**
    ```bash
-   npm install
+   bun install
    ```
 
 3. **Run the development server**
    ```bash
-   npm run dev
+   bun run dev
    ```
 
 4. **Open your browser**
@@ -65,8 +65,8 @@ Bilquo is a modern, open-source web application designed to streamline the creat
 ### Production Build
 
 ```bash
-npm run build
-npm start
+bun run build
+bun run start
 ```
 
 ## 🎯 Usage Guide
@@ -128,7 +128,7 @@ Lehro Solutions welcomes contributions from the community! Whether you're fixing
 1. Fork the repository
 2. Create a feature branch: `git checkout -b feature/amazing-feature`
 3. Make your changes
-4. Run tests: `npm test` (when available)
+4. Run tests: `bun test` (when available)
 5. Commit your changes: `git commit -m 'Add amazing feature'`
 6. Push to the branch: `git push origin feature/amazing-feature`
 7. Open a Pull Request
@@ -142,7 +142,7 @@ Lehro Solutions welcomes contributions from the community! Whether you're fixing
 
 ## 📄 License
 
-Bilquo is licensed under the MIT License. See the [LICENSE](LICENSE) file for more information.
+Bilquo is licensed under the Apache License 2.0. See the [LICENSE](LICENSE) file for more information.
 
 ## 🆘 Support
 
@@ -165,3 +165,50 @@ Lehro Solutions is committed to creating open-source tools that empower business
 **Made with ❤️ by Lehro Solutions**
 
 *If you find Bilquo useful, please consider starring the repository and sharing it with your network!*
+
+## License
+
+Copyright © 2026 Lehro Solutions. Licensed under the [Apache License 2.0](LICENSE). See [NOTICE](NOTICE).
+
+## Documentation
+
+Canonical docs hub: [`docs/.docs/index.md`](docs/.docs/index.md)
+
+## Package manager (Bun)
+
+This package is **Bun-first**.
+
+```bash
+bun install
+bun run dev    # if defined
+bun run build  # if defined
+bun test       # or: bun run test
+```
+
+- Lockfile target: `bun.lock` (generate locally with `bun install`)
+- `packageManager` field pins Bun via Corepack-compatible tooling ecosystems
+- Node remains a compatibility runtime floor; prefer Bun for install/run/test
+
+See docs for the package-manager decision: search for `ADR-0003` in `docs/.docs/` when present.
+
+## How to use
+
+See [docs/how-to-use.md](docs/how-to-use.md) for the full operator guide.
+
+## Security
+
+See [SECURITY.md](SECURITY.md).
+
+<!-- docs-system:start -->
+## Documentation
+
+The current public documentation is available in [`docs/index.html`](docs/index.html). Start with [`docs/current/start-here.md`](docs/current/start-here.md) for scope, current changes, workflows, architecture, security, quality, and contribution guidance.
+
+### Latest public changes
+
+- Local draft recovery
+- JSON import and export
+- Invoice, quote, and receipt templates with PDF export
+
+Documentation is maintained as canonical Markdown plus generated HTML and JSON counterparts. Run `pnpm docs:build` after changing `docs/current/*.md` and `pnpm docs:check` before a public release.
+<!-- docs-system:end -->

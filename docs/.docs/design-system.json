@@ -1,0 +1,14 @@
+{
+  "product": "Bilquo",
+  "title": "Design System",
+  "group": "Guides",
+  "path": ".docs/design-system.md",
+  "lead": "Quiet commercial studio",
+  "content_markdown": "# Bilquo Design System\n\n## Tone\nQuiet commercial studio\n\n## Mode\n`light`\n\n## Core tokens\n- Background: `#eef1f4`\n- Panel: `#ffffff`\n- Text: `#0f172a`\n- Muted: `#64748b`\n- Line: `rgba(15,23,42,0.12)`\n- Accent: `#2563eb`\n- Accent 2: `#1d4ed8`\n- Success / Warning / Danger: `#059669` / `#d97706` / `#dc2626`\n- Radius: `14px`\n- Font: `Arial, Helvetica, sans-serif`\n- Mono: `Consolas, 'SFMono-Regular', monospace`\n\n## Docs integration\n- Shared CSS: [design-system.css](./design-system.css)\n- Machine tokens: [design-system.tokens.json](./design-system.tokens.json)\n- All ultra-linked HTML pages are rendered with this theme (not a generic shared skin).\n\n## Operator UX standards\n- Semantic HTML and visible focus states\n- High-contrast product palette (no generic purple-gradient AI slop)\n- Prefer product density and operational clarity\n- Respect `prefers-reduced-motion`\n\n## Related\n- [Architecture](./architecture.md)\n- [How to Use](./how-to-use.md)\n- [Skills](./skills.md)\n- [Index](./index.md)\n",
+  "layout": "quantumide-ultra-link",
+  "theme": {
+    "mode": "light",
+    "accent": "#2563eb",
+    "css": "design-system.css"
+  }
+}

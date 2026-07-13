@@ -1,0 +1,71 @@
+{
+  "schemaVersion": "1.0",
+  "slug": "architecture",
+  "title": "Architecture",
+  "status": "current",
+  "audience": [
+    "Business operators",
+    "Developers",
+    "Contributors"
+  ],
+  "useWhen": "Use the corresponding current guide for this task.",
+  "sourceOfTruth": "current/architecture.md",
+  "counterparts": {
+    "markdown": "current/architecture.md",
+    "html": "current/architecture.html",
+    "json": "current/architecture.json"
+  },
+  "summary": "Current architecture guidance for Bilquo.",
+  "sections": [
+    {
+      "id": "purpose",
+      "label": "Purpose"
+    },
+    {
+      "id": "on-this-page",
+      "label": "On this page"
+    },
+    {
+      "id": "guidance",
+      "label": "Guidance"
+    },
+    {
+      "id": "verification",
+      "label": "Verification"
+    },
+    {
+      "id": "related-guides",
+      "label": "Related guides"
+    },
+    {
+      "id": "system-map",
+      "label": "System map"
+    },
+    {
+      "id": "ownership-boundaries",
+      "label": "Ownership boundaries"
+    },
+    {
+      "id": "safe-change-sequence",
+      "label": "Safe change sequence"
+    }
+  ],
+  "relatedGuides": [
+    "start-here",
+    "quality",
+    "contributing"
+  ],
+  "keywords": [
+    "bilquo",
+    "architecture",
+    "documentation",
+    "current"
+  ],
+  "lastReviewed": "2026-07-13",
+  "sourceChecksum": "1769fd333e8ae37f7569a4cba9dd235d2e2626939cd31d3507ebcacb8622f724",
+  "generatedAt": "2026-07-13T11:47:55.575528+00:00",
+  "release": "archive-2026-07-13",
+  "validation": {
+    "state": "generated"
+  }
+}

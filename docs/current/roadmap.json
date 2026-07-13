@@ -1,0 +1,68 @@
+{
+  "schemaVersion": "1.0",
+  "slug": "roadmap",
+  "title": "Roadmap",
+  "status": "current",
+  "audience": [
+    "Business operators",
+    "Developers",
+    "Contributors"
+  ],
+  "useWhen": "Use the corresponding current guide for this task.",
+  "sourceOfTruth": "current/roadmap.md",
+  "counterparts": {
+    "markdown": "current/roadmap.md",
+    "html": "current/roadmap.html",
+    "json": "current/roadmap.json"
+  },
+  "summary": "Current roadmap guidance for Bilquo.",
+  "sections": [
+    {
+      "id": "purpose",
+      "label": "Purpose"
+    },
+    {
+      "id": "on-this-page",
+      "label": "On this page"
+    },
+    {
+      "id": "guidance",
+      "label": "Guidance"
+    },
+    {
+      "id": "verification",
+      "label": "Verification"
+    },
+    {
+      "id": "related-guides",
+      "label": "Related guides"
+    },
+    {
+      "id": "completed-delivery",
+      "label": "Completed delivery"
+    },
+    {
+      "id": "current-maintenance",
+      "label": "Current maintenance"
+    }
+  ],
+  "relatedGuides": [
+    "start-here",
+    "architecture",
+    "quality",
+    "contributing"
+  ],
+  "keywords": [
+    "bilquo",
+    "roadmap",
+    "documentation",
+    "current"
+  ],
+  "lastReviewed": "2026-07-13",
+  "sourceChecksum": "4325ff784b56c4815a768e5c534e76e4e97fd528b72a395affc4fd1647949ffe",
+  "generatedAt": "2026-07-13T11:47:55.576913+00:00",
+  "release": "archive-2026-07-13",
+  "validation": {
+    "state": "generated"
+  }
+}
