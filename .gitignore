@@ -19,6 +19,7 @@
 
 # production
 /build
+/marketingvideo/
 
 # misc
 .DS_Store
