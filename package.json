@@ -13,11 +13,11 @@
     "docs:check": "node scripts/docs.mjs check"
   },
   "dependencies": {
-    "html-to-image": "^1.11.13",
-    "jspdf": "^4.2.1",
-    "next": "16.2.6",
-    "react": "19.2.4",
-    "react-dom": "19.2.4"
+    "html-to-image": "1.11.13",
+    "jspdf": "4.2.1",
+    "next": "16.3.2",
+    "react": "19.2.8",
+    "react-dom": "19.2.8"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

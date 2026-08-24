@@ -2,9 +2,7 @@
 
 import React from 'react';
 import {
-  calculateSubtotal,
-  calculateTax,
-  calculateTotal,
+  computeTotals,
   getCurrencySymbol,
   InvoiceData,
   LineItem,
@@ -26,9 +24,7 @@ interface InvoiceFormProps {
 }
 
 export default function InvoiceForm({ data, onChange }: InvoiceFormProps) {
-  const subtotal = calculateSubtotal(data.lineItems);
-  const tax = calculateTax(subtotal, data.taxRate);
-  const total = calculateTotal(subtotal, tax);
+  const totals = computeTotals(data.lineItems, data.discountType, data.discountValue, data.taxRate);
   const isReceipt = data.documentType === 'receipt';
 
   const updateField = <K extends keyof InvoiceData>(field: K, value: InvoiceData[K]) => {
@@ -79,10 +75,10 @@ export default function InvoiceForm({ data, onChange }: InvoiceFormProps) {
           <input
             type="number"
             step="0.01"
-            value={data.amountReceived || total}
+            value={data.amountReceived || totals.total}
             onChange={(e) => updateField('amountReceived', Number(e.target.value))}
             className="w-full rounded-r-lg border border-gray-300 px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            placeholder={total.toFixed(2)}
+            placeholder={totals.total.toFixed(2)}
           />
         </div>
         <p className="mt-1 text-xs text-gray-500">
@@ -182,8 +178,9 @@ export default function InvoiceForm({ data, onChange }: InvoiceFormProps) {
           <label className="mb-1 block text-sm font-medium text-gray-700">Tax Rate (%)</label>
           <input
             type="number"
+            min={0}
             value={data.taxRate}
-            onChange={(e) => updateField('taxRate', Number(e.target.value))}
+            onChange={(e) => updateField('taxRate', Math.max(Number(e.target.value) || 0, 0))}
             className="w-full rounded-lg border border-gray-300 px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             placeholder="0"
           />
@@ -202,6 +199,47 @@ export default function InvoiceForm({ data, onChange }: InvoiceFormProps) {
             ))}
           </select>
         </div>
+      </div>
+
+      <div className="grid grid-cols-[1fr_5rem_auto] items-end gap-4">
+        <div>
+          <label className="mb-1 block text-sm font-medium text-gray-700">Discount</label>
+          <input
+            type="number"
+            min={0}
+            max={data.discountType === 'percent' ? 100 : undefined}
+            value={data.discountValue || ''}
+            onChange={(e) =>
+              updateField('discountValue', Math.max(Number(e.target.value) || 0, 0))
+            }
+            className="w-full rounded-lg border border-gray-300 px-3 py-2 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            placeholder="0"
+            aria-label={data.discountType === 'percent' ? 'Discount percent' : 'Discount amount'}
+          />
+        </div>
+        <select
+          value={data.discountType}
+          onChange={(e) => {
+            const nextType = e.target.value as InvoiceData['discountType'];
+            // Clamp the stored value when switching modes so totals never jump
+            const clamped =
+              nextType === 'percent' ? Math.min(data.discountValue, 100) : data.discountValue;
+            onChange({ ...data, discountType: nextType, discountValue: clamped });
+          }}
+          className="rounded-lg border border-gray-300 bg-white px-2 py-2 outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+          aria-label="Discount type"
+        >
+          <option value="percent">%</option>
+          <option value="fixed">{getCurrencySymbol(data.currency)}</option>
+        </select>
+        <button
+          type="button"
+          onClick={() => updateField('discountValue', 0)}
+          disabled={!data.discountValue}
+          className="rounded-lg border border-gray-300 px-3 py-2 text-sm font-medium text-gray-600 hover:border-gray-400 disabled:opacity-40 disabled:hover:border-gray-300 cursor-pointer disabled:cursor-not-allowed"
+        >
+          Clear
+        </button>
       </div>
 
       {isReceipt ? (

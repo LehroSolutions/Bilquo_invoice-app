@@ -21,6 +21,7 @@ export interface ClientInfo {
 
 export type DocumentType = 'invoice' | 'quote' | 'receipt';
 export type TemplateType = 'classic' | 'modern' | 'professional';
+export type DiscountType = 'percent' | 'fixed';
 
 export const documentTypeLabels: Record<DocumentType, string> = {
   invoice: 'Invoice',
@@ -54,6 +55,8 @@ export interface InvoiceData {
   company: CompanyInfo;
   client: ClientInfo;
   lineItems: LineItem[];
+  discountType: DiscountType;
+  discountValue: number;
   taxRate: number;
   notes: string;
   terms: string;
@@ -87,6 +90,8 @@ export const defaultBilquoData: InvoiceData = {
   lineItems: [
     { id: '1', description: '', quantity: 1, rate: 0 },
   ],
+  discountType: 'percent',
+  discountValue: 0,
   taxRate: 0,
   notes: 'Thank you for your business!',
   terms: 'Payment due within 30 days.',
@@ -103,12 +108,57 @@ export function calculateSubtotal(items: LineItem[]): number {
   return items.reduce((sum, item) => sum + item.quantity * item.rate, 0);
 }
 
+export function calculateDiscount(
+  subtotal: number,
+  discountType: DiscountType,
+  discountValue: number
+): number {
+  if (!Number.isFinite(discountValue) || discountValue <= 0) return 0;
+  if (discountType === 'percent') {
+    return subtotal * (Math.min(discountValue, 100) / 100);
+  }
+  return Math.min(discountValue, subtotal);
+}
+
 export function calculateTax(subtotal: number, taxRate: number): number {
   return subtotal * (taxRate / 100);
 }
 
 export function calculateTotal(subtotal: number, tax: number): number {
   return subtotal + tax;
+}
+
+export interface DocumentTotals {
+  subtotal: number;
+  discount: number;
+  taxableBase: number;
+  tax: number;
+  total: number;
+}
+
+/** Single source of truth: subtotal → discount → tax-on-discounted → total. */
+export function computeTotals(
+  lineItems: LineItem[],
+  discountType: DiscountType,
+  discountValue: number,
+  taxRate: number
+): DocumentTotals {
+  const safe = (n: unknown): number => {
+    const v = typeof n === 'number' ? n : Number(n);
+    return Number.isFinite(v) && v > 0 ? v : 0;
+  };
+  const items = Array.isArray(lineItems)
+    ? lineItems.map((it) => ({
+        ...it,
+        quantity: safe(it?.quantity),
+        rate: safe(it?.rate),
+      }))
+    : [];
+  const subtotal = calculateSubtotal(items);
+  const discount = calculateDiscount(subtotal, discountType, discountValue);
+  const taxableBase = Math.max(subtotal - discount, 0);
+  const tax = calculateTax(taxableBase, taxRate);
+  return { subtotal, discount, taxableBase, tax, total: calculateTotal(taxableBase, tax) };
 }
 
 export function calculateBalanceDue(total: number, amountReceived: number): number {

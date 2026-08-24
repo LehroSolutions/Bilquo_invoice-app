@@ -4,10 +4,8 @@ import React, { useRef } from 'react';
 import { jsPDF } from 'jspdf';
 import {
   calculateBalanceDue,
-  calculateSubtotal,
-  calculateTax,
-  calculateTotal,
   calculateOverpayment,
+  computeTotals,
   documentTypeLabels,
   getCurrencySymbol,
   InvoiceData,
@@ -21,9 +19,8 @@ interface InvoicePreviewProps {
 export default function InvoicePreview({ data }: InvoicePreviewProps) {
   const printRef = useRef<HTMLDivElement>(null);
 
-  const subtotal = calculateSubtotal(data.lineItems);
-  const tax = calculateTax(subtotal, data.taxRate);
-  const total = calculateTotal(subtotal, tax);
+  const totals = computeTotals(data.lineItems, data.discountType, data.discountValue, data.taxRate);
+  const { subtotal, discount, tax, total } = totals;
   const isReceipt = data.documentType === 'receipt';
   const amountReceived = isReceipt ? (data.amountReceived > 0 ? data.amountReceived : total) : total;
   const balanceDue = calculateBalanceDue(total, amountReceived);
@@ -159,7 +156,18 @@ export default function InvoicePreview({ data }: InvoicePreviewProps) {
             {subtotal.toFixed(2)}
           </span>
         </div>
-        {data.taxRate > 0 && (
+        {discount > 0 && (
+          <div className="flex justify-between py-2 text-sm">
+            <span className="text-gray-600">
+              Discount{data.discountType === 'percent' ? ` (${data.discountValue}%)` : ''}
+            </span>
+            <span className="font-medium text-emerald-700">
+              −{sym}
+              {discount.toFixed(2)}
+            </span>
+          </div>
+        )}
+        {tax > 0 && (
           <div className="flex justify-between py-2 text-sm">
             <span className="text-gray-600">Tax ({data.taxRate}%)</span>
             <span className="font-medium text-gray-800">

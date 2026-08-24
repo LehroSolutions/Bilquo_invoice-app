@@ -1,5 +1,3 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
 # dependencies
 /node_modules
 /.pnp
@@ -19,35 +17,43 @@
 
 # production
 /build
+/dist
+
+# marketing assets stay local-only
 /marketingvideo/
 
 # misc
 .DS_Store
 *.pem
+Thumbs.db
 
-# debug
+# debug logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+*.log
 
 # env files (can opt-in for committing if needed)
 .env*
+!.env.example
 
-# vercel
+# vercel / netlify local state
 .vercel
+.netlify
 
 # typescript
 *.tsbuildinfo
 next-env.d.ts
-node_modules/
-.env.*
-!.env.example
-coverage/
-dist/
-*.log
+
+# package managers — bun is the single source of truth
+package-lock.json
+pnpm-lock.yaml
+yarn.lock
+bun.lockb
+
+# toolchains / editors
 .venv/
 __pycache__/
-
-#javascript
-build-docs.mjs
+.idea/
+.vscode/
