@@ -7,6 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "eslint",
+    "typecheck": "tsc --noEmit",
+    "verify": "bun run lint && bun run typecheck && bun run build",
     "package:manager": "bun --version",
     "install:js": "bun install",
     "docs:build": "node scripts/docs.mjs build",
