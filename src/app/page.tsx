@@ -5,99 +5,25 @@ import InvoiceForm from './components/InvoiceForm';
 import InvoicePreview from './components/InvoicePreview';
 import { ReceiptIcon } from './components/icons';
 import {
-  CurrencyCode,
-  DiscountType,
-  DocumentType,
   InvoiceData,
-  LineItem,
-  TemplateType,
   computeTotals,
-  currencies,
   defaultBilquoData,
+  todayCalendarDate,
 } from './types';
 
+import { isDraftExpired, sanitizeImported } from './draft';
+
 const DRAFT_KEY = 'bilquo.draft.v1';
+const DRAFT_SAVED_AT_KEY = 'bilquo.draft.savedAt.v1';
 const MAX_IMPORT_BYTES = 5 * 1024 * 1024;
-
-function asString(v: unknown, fallback = ''): string {
-  return typeof v === 'string' ? v : fallback;
-}
-
-function asNonNegNumber(v: unknown, fallback = 0): number {
-  const n = typeof v === 'number' ? v : Number(v);
-  return Number.isFinite(n) && n >= 0 ? n : fallback;
-}
-
-/** Hardened import: every field is validated before it can touch app state. */
-function sanitizeImported(raw: unknown): InvoiceData {
-  if (!raw || typeof raw !== 'object') return defaultBilquoData;
-  const candidate = raw as Partial<InvoiceData> & Record<string, unknown>;
-  const lineItems: LineItem[] = Array.isArray(candidate.lineItems)
-    ? candidate.lineItems.slice(0, 500).map((item, i) => {
-        const li = (item ?? {}) as unknown as Record<string, unknown>;
-        return {
-          id: asString(li.id, `imported-${i}`),
-          description: asString(li.description).slice(0, 2000),
-          quantity: asNonNegNumber(li.quantity, 0),
-          rate: asNonNegNumber(li.rate, 0),
-        };
-      })
-    : defaultBilquoData.lineItems;
-  const docType: DocumentType =
-    candidate.documentType === 'quote' || candidate.documentType === 'receipt'
-      ? candidate.documentType
-      : 'invoice';
-  const template: TemplateType =
-    candidate.template === 'classic' || candidate.template === 'professional'
-      ? candidate.template
-      : 'modern';
-  const discountType: DiscountType =
-    candidate.discountType === 'fixed' ? 'fixed' : 'percent';
-  const currency: CurrencyCode = currencies.some((c) => c.code === candidate.currency)
-    ? (candidate.currency as CurrencyCode)
-    : 'USD';
-  return {
-    documentType: docType,
-    documentNumber: asString(candidate.documentNumber, defaultBilquoData.documentNumber).slice(0, 100),
-    date: asString(candidate.date).slice(0, 10),
-    dueDate: asString(candidate.dueDate).slice(0, 10),
-    invoiceReference: asString(candidate.invoiceReference).slice(0, 200),
-    amountReceived: asNonNegNumber(candidate.amountReceived, 0),
-    paymentMethod: asString(candidate.paymentMethod, 'Bank transfer').slice(0, 100),
-    paymentReference: asString(candidate.paymentReference).slice(0, 200),
-    receivedBy: asString(candidate.receivedBy).slice(0, 200),
-    company: {
-      name: asString(candidate.company?.name).slice(0, 300),
-      address: asString(candidate.company?.address).slice(0, 1000),
-      email: asString(candidate.company?.email).slice(0, 320),
-      phone: asString(candidate.company?.phone).slice(0, 60),
-      additionalDetails: asString(candidate.company?.additionalDetails).slice(0, 1000),
-    },
-    client: {
-      name: asString(candidate.client?.name).slice(0, 300),
-      address: asString(candidate.client?.address).slice(0, 1000),
-      email: asString(candidate.client?.email).slice(0, 320),
-    },
-    lineItems,
-    discountType,
-    discountValue: asNonNegNumber(candidate.discountValue, 0),
-    taxRate: Math.min(asNonNegNumber(candidate.taxRate, 0), 10_000),
-    notes: asString(candidate.notes, defaultBilquoData.notes).slice(0, 5000),
-    terms: asString(candidate.terms, defaultBilquoData.terms).slice(0, 5000),
-    logo:
-      typeof candidate.logo === 'string' &&
-      candidate.logo.startsWith('data:image/') &&
-      candidate.logo.length <= 2_000_000
-        ? candidate.logo
-        : null,
-    template,
-    currency,
-  };
-}
 
 export default function Home() {
   const [data, setData] = useState<InvoiceData>(defaultBilquoData);
   const [savedAt, setSavedAt] = useState('');
+  const [saveError, setSaveError] = useState('');
+  const [notice, setNotice] = useState('');
+  const [hydrated, setHydrated] = useState(false);
+  const [saveDraft, setSaveDraft] = useState(false);
   const importRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -107,11 +33,30 @@ export default function Home() {
     // but the state update happens in a callback.
     const id = window.setTimeout(() => {
       if (cancelled) return;
+      setData({ ...defaultBilquoData, date: todayCalendarDate() });
       try {
+        const savedAt = localStorage.getItem(DRAFT_SAVED_AT_KEY);
         const raw = localStorage.getItem(DRAFT_KEY);
-        if (raw) setData(sanitizeImported(JSON.parse(raw)));
+        if (raw && isDraftExpired(savedAt)) {
+          localStorage.removeItem(DRAFT_KEY);
+          localStorage.removeItem(DRAFT_SAVED_AT_KEY);
+          setNotice('The saved draft expired or had an invalid save date and has been deleted from this browser.');
+          return;
+        }
+        if (raw) {
+          setData(sanitizeImported(JSON.parse(raw)));
+          setSaveDraft(true);
+        }
       } catch {
-        localStorage.removeItem(DRAFT_KEY);
+        try {
+          localStorage.removeItem(DRAFT_KEY);
+          localStorage.removeItem(DRAFT_SAVED_AT_KEY);
+        } catch {
+          // Browsers may deny all storage operations. Editing still works.
+        }
+        setNotice('The saved draft could not be opened. Import a JSON backup or start a new document.');
+      } finally {
+        setHydrated(true);
       }
     }, 0);
     return () => {
@@ -121,29 +66,54 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    if (!hydrated || !saveDraft) return;
     const id = window.setTimeout(() => {
       try {
         localStorage.setItem(DRAFT_KEY, JSON.stringify(data));
+        localStorage.setItem(DRAFT_SAVED_AT_KEY, String(Date.now()));
+        setSaveError('');
         setSavedAt(
           new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
         );
       } catch {
-        // Quota exceeded (large logo) or storage unavailable — surface it
+        // Quota exceeded (large logo) or storage unavailable. The document is
+        // still on screen, so say so instead of implying it was persisted.
         setSavedAt('');
+        setSaveError(
+          'This browser could not store the draft, so it will be lost on reload. Export JSON to keep a copy.'
+        );
         console.warn('Draft could not be saved to localStorage');
       }
     }, 400);
     return () => clearTimeout(id);
-  }, [data]);
+  }, [data, hydrated, saveDraft]);
 
   const handleChange = (next: InvoiceData) => {
-    if (next.documentType === 'receipt' && next.amountReceived <= 0) {
+    setSaveDraft(true);
+    if (next.documentType === 'receipt' && !next.amountReceivedIsSet) {
       const t = computeTotals(next.lineItems, next.discountType, next.discountValue, next.taxRate);
       setData({ ...next, amountReceived: t.total });
       return;
     }
 
     setData(next);
+  };
+
+  const discardStoredDraft = (message: string) => {
+    let deletionFailed = false;
+    try {
+      localStorage.removeItem(DRAFT_KEY);
+      localStorage.removeItem(DRAFT_SAVED_AT_KEY);
+    } catch {
+      deletionFailed = true;
+    }
+    setSaveDraft(false);
+    setData({ ...defaultBilquoData, date: todayCalendarDate() });
+    setSavedAt('');
+    setSaveError('');
+    setNotice(deletionFailed
+      ? 'This browser could not delete its saved draft. Re-enable site storage and try again, or clear this site\'s data in browser settings.'
+      : message);
   };
 
   const exportJson = () => {
@@ -167,6 +137,7 @@ export default function Home() {
     try {
       const parsed = JSON.parse(await file.text());
       setData(sanitizeImported(parsed));
+      setSaveDraft(true);
     } catch {
       alert('Could not import that JSON draft. Check the file and try again.');
     }
@@ -174,6 +145,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-[#eef1f4] text-slate-950">
+      <fieldset disabled={!hydrated} aria-busy={!hydrated} aria-label="Document editor" className="contents">
       <header className="sticky top-0 z-10 border-b border-slate-200/80 bg-white/90 backdrop-blur-xl">
         <div className="mx-auto flex max-w-[1600px] flex-wrap items-center gap-3 px-4 py-3 sm:px-6">
           <ReceiptIcon size={28} className="mr-1 text-blue-600" />
@@ -182,9 +154,29 @@ export default function Home() {
             <p className="text-xs text-slate-500">Commercial document studio</p>
           </div>
           <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500">
-            <span aria-live="polite">
-              {savedAt ? `Draft saved ${savedAt}` : 'Local-first draft'}
-            </span>
+            <div className="max-w-[22rem]">
+              <p
+                aria-live="polite"
+                className={saveError ? 'font-semibold text-red-700' : undefined}
+              >
+                {saveError
+                  ? 'Draft not saved'
+                  : savedAt
+                    ? `Draft saved ${savedAt}`
+                    : 'Local-first draft'}
+              </p>
+              {saveError ? (
+                <p role="alert" className="mt-0.5 leading-tight text-red-700">
+                  {saveError}
+                </p>
+              ) : (
+                notice && (
+                  <p role="status" className="mt-0.5 leading-tight text-slate-600">
+                    {notice}
+                  </p>
+                )
+              )}
+            </div>
             <input
               ref={importRef}
               type="file"
@@ -213,12 +205,21 @@ export default function Home() {
             <button
               type="button"
               className="min-h-11 rounded-lg border border-slate-300 bg-white px-3 font-semibold text-slate-700 hover:border-slate-400 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600"
-              onClick={() => {
-                setData(defaultBilquoData);
-                localStorage.removeItem(DRAFT_KEY);
-              }}
+              onClick={() => discardStoredDraft('New document started. The stored draft was deleted.')}
             >
               New document
+            </button>
+            <button
+              type="button"
+              className="min-h-11 rounded-lg border border-red-300 bg-white px-3 font-semibold text-red-700 hover:bg-red-50 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-red-600"
+              onClick={() => {
+                if (!window.confirm('Delete the draft stored in this browser? This cannot be undone.')) {
+                  return;
+                }
+                discardStoredDraft('Stored draft deleted from this browser.');
+              }}
+            >
+              Delete stored draft
             </button>
           </div>
         </div>
@@ -229,6 +230,7 @@ export default function Home() {
           <InvoicePreview data={data} />
         </div>
       </main>
+      </fieldset>
     </div>
   );
 }

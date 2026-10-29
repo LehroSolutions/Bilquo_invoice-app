@@ -22,9 +22,9 @@ Package manager: **bun** (see `packageManager` field). License: Apache-2.0.
 
 ## Verify Contract
 
-`bun run verify` = lint + typecheck + production build. It must pass before
-you report success. There is no unit test suite yet — do not claim "tests
-pass"; say "verify passes".
+`bun run verify` = lint + typecheck + regression tests + production build. It must pass before
+you report success. `bun run test` covers monetary arithmetic and imported drafts.
+The nested `marketingvideo/` Git repository has its own verification.
 
 ## Codebase Map
 

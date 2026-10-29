@@ -1,14 +1,19 @@
 'use client';
 
-import React, { useRef } from 'react';
+import React, { useRef, useState } from 'react';
 import { jsPDF } from 'jspdf';
+import { paginateDocument } from '../pdf';
 import {
-  calculateBalanceDue,
-  calculateOverpayment,
+  calculateBalanceDueMinor,
+  calculateOverpaymentMinor,
   computeTotals,
   documentTypeLabels,
+  formatMinorUnits,
   getCurrencySymbol,
   InvoiceData,
+  lineAmountMinor,
+  parseCalendarDate,
+  toMinorUnits,
 } from '../types';
 import { DownloadIcon, EyeIcon } from './icons';
 
@@ -18,84 +23,72 @@ interface InvoicePreviewProps {
 
 export default function InvoicePreview({ data }: InvoicePreviewProps) {
   const printRef = useRef<HTMLDivElement>(null);
+  const exportingRef = useRef(false);
+  const [exporting, setExporting] = useState(false);
 
   const totals = computeTotals(data.lineItems, data.discountType, data.discountValue, data.taxRate);
-  const { subtotal, discount, tax, total } = totals;
+  const { subtotalMinor, discountMinor, taxMinor, totalMinor } = totals;
   const isReceipt = data.documentType === 'receipt';
-  const amountReceived = isReceipt ? (data.amountReceived > 0 ? data.amountReceived : total) : total;
-  const balanceDue = calculateBalanceDue(total, amountReceived);
-  const overpayment = calculateOverpayment(total, amountReceived);
+  const amountReceivedMinor = isReceipt
+    ? data.amountReceivedIsSet
+      ? toMinorUnits(data.amountReceived)
+      : totalMinor
+    : totalMinor;
+  const balanceDueMinor = calculateBalanceDueMinor(totalMinor, amountReceivedMinor);
+  const overpaymentMinor = calculateOverpaymentMinor(totalMinor, amountReceivedMinor);
   const sym = getCurrencySymbol(data.currency);
 
   const handleExportPDF = async () => {
-    if (typeof window === 'undefined' || !printRef.current) return;
-
-    const originalStyles = {
-      overflow: printRef.current.style.overflow,
-      maxHeight: printRef.current.style.maxHeight,
-      height: printRef.current.style.height,
-    };
-
+    if (!printRef.current || exportingRef.current) return;
+    exportingRef.current = true;
+    setExporting(true);
+    const exportHolder = document.createElement('div');
+    Object.assign(exportHolder.style, { position: 'fixed', top: '0', left: '-10000px', width: '794px' });
+    exportHolder.setAttribute('aria-hidden', 'true');
+    const exportNode = printRef.current.cloneNode(true) as HTMLDivElement;
+    Object.assign(exportNode.style, { width: '794px', height: 'auto', maxHeight: 'none', overflow: 'visible' });
+    exportHolder.appendChild(exportNode);
+    document.body.appendChild(exportHolder);
     try {
       const { toPng } = await import('html-to-image');
-
-      printRef.current.style.overflow = 'visible';
-      printRef.current.style.maxHeight = 'none';
-      printRef.current.style.height = 'auto';
-
-      const pngDataUrl = await toPng(printRef.current, {
-        quality: 1,
-        pixelRatio: 2,
+      await document.fonts.ready;
+      await Promise.all(Array.from(exportNode.querySelectorAll('img')).map((img) => img.decode()));
+      const width = 794;
+      const availableWidth = 200;
+      const availableHeight = 287;
+      const pageHeight = Math.floor(width * availableHeight / availableWidth);
+      const totalHeight = exportNode.scrollHeight;
+      const top = exportNode.getBoundingClientRect().top;
+      const rows = Array.from(exportNode.querySelectorAll('tr')).map((row) => {
+        const bounds = row.getBoundingClientRect();
+        return { top: bounds.top - top, bottom: bounds.bottom - top };
       });
-
-      printRef.current.style.overflow = originalStyles.overflow;
-      printRef.current.style.maxHeight = originalStyles.maxHeight;
-      printRef.current.style.height = originalStyles.height;
-
-      const img = new Image();
-      img.src = pngDataUrl;
-      await new Promise<void>((resolve, reject) => {
-        img.onload = () => resolve();
-        img.onerror = () => reject(new Error('Failed to load rendered image'));
-      });
-
-      const pxWidth = img.naturalWidth;
-      const pxHeight = img.naturalHeight;
-      const pxToMm = 0.264583;
-      const imgWidthMm = pxWidth * pxToMm;
-      const imgHeightMm = pxHeight * pxToMm;
-
-      const pageWidthMm = 210;
-      const pageHeightMm = 297;
-      const marginMm = 5;
-      const availableWidth = pageWidthMm - marginMm * 2;
-      const availableHeight = pageHeightMm - marginMm * 2;
-
-      const scale = Math.min(availableWidth / imgWidthMm, availableHeight / imgHeightMm, 1);
-      const finalWidth = imgWidthMm * scale;
-      const finalHeight = imgHeightMm * scale;
-      const x = marginMm + (availableWidth - finalWidth) / 2;
-      const y = marginMm;
-
-      const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
-      pdf.addImage(pngDataUrl, 'PNG', x, y, finalWidth, finalHeight);
-      pdf.save(`${data.documentType}-${data.documentNumber}.pdf`);
+      const pages = paginateDocument(totalHeight, pageHeight, rows);
+      const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait', compress: true });
+      for (const { offset, height } of pages) {
+        const png = await toPng(exportNode, {
+          width, height, pixelRatio: 2, backgroundColor: '#ffffff',
+          style: { position: 'relative', left: '0', top: '0', height: `${totalHeight}px`, transform: `translateY(-${offset}px)`, borderRadius: '0', boxShadow: 'none' },
+        });
+        if (offset) pdf.addPage();
+        pdf.addImage(png, 'PNG', 5, 5, availableWidth, height * availableWidth / width);
+      }
+      const safeNumber = data.documentNumber.replace(/[^a-zA-Z0-9_.-]+/g, '-').slice(0, 100) || 'document';
+      pdf.save(`${data.documentType}-${safeNumber}.pdf`);
     } catch (err) {
       console.error('PDF export failed:', err);
-      alert('PDF export failed. Please try again.');
+      alert('PDF export failed. Check the logo image and try again. Your draft is unchanged.');
     } finally {
-      if (printRef.current) {
-        printRef.current.style.overflow = originalStyles.overflow;
-        printRef.current.style.maxHeight = originalStyles.maxHeight;
-        printRef.current.style.height = originalStyles.height;
-      }
+      exportHolder.remove();
+      exportingRef.current = false;
+      setExporting(false);
     }
   };
 
   const formatDate = (dateStr: string) => {
-    if (!dateStr) return '';
-    const d = new Date(dateStr);
-    return d.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    const date = parseCalendarDate(dateStr);
+    if (!date) return '';
+    return date.toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
   };
 
   const renderReceiptSummary = () => {
@@ -107,7 +100,7 @@ export default function InvoicePreview({ data }: InvoicePreviewProps) {
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-emerald-700">Receipt status</p>
             <p className="text-lg font-bold text-emerald-900">
-              {overpayment > 0 ? 'Overpayment recorded' : balanceDue > 0 ? 'Partially paid' : 'Paid in full'}
+              {overpaymentMinor > 0 ? 'Overpayment recorded' : balanceDueMinor > 0 ? 'Partially paid' : 'Paid in full'}
             </p>
             <p className="mt-1 text-sm text-emerald-800">
               Receipt for invoice {data.invoiceReference || data.documentNumber}
@@ -117,7 +110,7 @@ export default function InvoicePreview({ data }: InvoicePreviewProps) {
             <p className="text-xs font-semibold uppercase tracking-wider text-emerald-700">Amount received</p>
             <p className="text-2xl font-bold text-emerald-950">
               {sym}
-              {amountReceived.toFixed(2)}
+              {formatMinorUnits(amountReceivedMinor)}
             </p>
           </div>
         </div>
@@ -134,7 +127,9 @@ export default function InvoicePreview({ data }: InvoicePreviewProps) {
           <div className="rounded-lg bg-white/80 p-3">
             <p className="text-xs uppercase tracking-wider text-gray-500">Balance due</p>
             <p className="font-medium text-gray-800">
-              {overpayment > 0 ? `${sym}${overpayment.toFixed(2)} credit` : `${sym}${balanceDue.toFixed(2)}`}
+              {overpaymentMinor > 0
+                ? `${sym}${formatMinorUnits(overpaymentMinor)} credit`
+                : `${sym}${formatMinorUnits(balanceDueMinor)}`}
             </p>
           </div>
           <div className="rounded-lg bg-white/80 p-3">
@@ -153,26 +148,26 @@ export default function InvoicePreview({ data }: InvoicePreviewProps) {
           <span className="text-gray-600">Subtotal</span>
           <span className="font-medium text-gray-800">
             {sym}
-            {subtotal.toFixed(2)}
+            {formatMinorUnits(subtotalMinor)}
           </span>
         </div>
-        {discount > 0 && (
+        {discountMinor > 0 && (
           <div className="flex justify-between py-2 text-sm">
             <span className="text-gray-600">
               Discount{data.discountType === 'percent' ? ` (${data.discountValue}%)` : ''}
             </span>
             <span className="font-medium text-emerald-700">
               −{sym}
-              {discount.toFixed(2)}
+              {formatMinorUnits(discountMinor)}
             </span>
           </div>
         )}
-        {tax > 0 && (
+        {taxMinor > 0 && (
           <div className="flex justify-between py-2 text-sm">
             <span className="text-gray-600">Tax ({data.taxRate}%)</span>
             <span className="font-medium text-gray-800">
               {sym}
-              {tax.toFixed(2)}
+              {formatMinorUnits(taxMinor)}
             </span>
           </div>
         )}
@@ -180,7 +175,7 @@ export default function InvoicePreview({ data }: InvoicePreviewProps) {
           <span className="text-gray-600">Invoice total</span>
           <span className="text-gray-800">
             {sym}
-            {total.toFixed(2)}
+            {formatMinorUnits(totalMinor)}
           </span>
         </div>
         {isReceipt && (
@@ -189,14 +184,14 @@ export default function InvoicePreview({ data }: InvoicePreviewProps) {
               <span className="text-gray-600">Amount received</span>
               <span className="font-medium text-gray-800">
                 {sym}
-                {amountReceived.toFixed(2)}
+                {formatMinorUnits(amountReceivedMinor)}
               </span>
             </div>
             <div className="flex justify-between py-3 border-t-2 border-gray-900 text-lg font-bold text-gray-900">
-              <span>{overpayment > 0 ? 'Credit / change' : 'Balance remaining'}</span>
+              <span>{overpaymentMinor > 0 ? 'Credit / change' : 'Balance remaining'}</span>
               <span>
                 {sym}
-                {(overpayment > 0 ? overpayment : balanceDue).toFixed(2)}
+                {formatMinorUnits(overpaymentMinor > 0 ? overpaymentMinor : balanceDueMinor)}
               </span>
             </div>
           </>
@@ -206,7 +201,7 @@ export default function InvoicePreview({ data }: InvoicePreviewProps) {
             <span>Total</span>
             <span>
               {sym}
-              {total.toFixed(2)}
+              {formatMinorUnits(totalMinor)}
             </span>
           </div>
         )}
@@ -217,7 +212,7 @@ export default function InvoicePreview({ data }: InvoicePreviewProps) {
   const renderCommonDetails = () => (
     <div className="grid grid-cols-2 gap-8 mb-8">
       <div>
-        <p className="text-xs font-semibold uppercase text-gray-400 tracking-wider mb-2">From</p>
+        <p className="text-xs font-semibold uppercase text-gray-600 tracking-wider mb-2">From</p>
         <p className="font-bold text-gray-800">{data.company.name}</p>
         <p className="text-sm text-gray-600 whitespace-pre-line">{data.company.address}</p>
         <p className="text-sm text-gray-600">{data.company.email}</p>
@@ -227,7 +222,7 @@ export default function InvoicePreview({ data }: InvoicePreviewProps) {
         )}
       </div>
       <div>
-        <p className="text-xs font-semibold uppercase text-gray-400 tracking-wider mb-2">
+        <p className="text-xs font-semibold uppercase text-gray-600 tracking-wider mb-2">
           {isReceipt ? 'Received From' : 'To'}
         </p>
         <p className="font-bold text-gray-800">{data.client.name}</p>
@@ -252,17 +247,17 @@ export default function InvoicePreview({ data }: InvoicePreviewProps) {
         </div>
         <div className="text-right">
           <p className="text-sm text-gray-600">
-            <span className="text-gray-400">{isReceipt ? 'Received on:' : 'Date:'}</span>{' '}
+            <span className="text-gray-600">{isReceipt ? 'Received on:' : 'Date:'}</span>{' '}
             {formatDate(data.date)}
           </p>
           {!isReceipt && data.dueDate && (
             <p className="mt-1 text-sm text-gray-600">
-              <span className="text-gray-400">Due:</span> {formatDate(data.dueDate)}
+              <span className="text-gray-600">Due:</span> {formatDate(data.dueDate)}
             </p>
           )}
           {isReceipt && data.paymentReference && (
             <p className="mt-1 text-sm text-gray-600">
-              <span className="text-gray-400">Reference:</span> {data.paymentReference}
+              <span className="text-gray-600">Reference:</span> {data.paymentReference}
             </p>
           )}
         </div>
@@ -287,11 +282,11 @@ export default function InvoicePreview({ data }: InvoicePreviewProps) {
               <td className="py-3 text-right text-sm text-gray-600">{item.quantity}</td>
               <td className="py-3 text-right text-sm text-gray-600">
                 {sym}
-                {item.rate.toFixed(2)}
+                {formatMinorUnits(toMinorUnits(item.rate))}
               </td>
               <td className="py-3 text-right text-sm font-medium text-gray-800">
                 {sym}
-                {(item.quantity * item.rate).toFixed(2)}
+                {formatMinorUnits(lineAmountMinor(item))}
               </td>
             </tr>
           ))}
@@ -380,11 +375,11 @@ export default function InvoicePreview({ data }: InvoicePreviewProps) {
               <td className="border border-gray-300 p-2 text-right text-sm text-gray-600">{item.quantity}</td>
               <td className="border border-gray-300 p-2 text-right text-sm text-gray-600">
                 {sym}
-                {item.rate.toFixed(2)}
+                {formatMinorUnits(toMinorUnits(item.rate))}
               </td>
               <td className="border border-gray-300 p-2 text-right text-sm font-medium text-gray-800">
                 {sym}
-                {(item.quantity * item.rate).toFixed(2)}
+                {formatMinorUnits(lineAmountMinor(item))}
               </td>
             </tr>
           ))}
@@ -503,11 +498,11 @@ export default function InvoicePreview({ data }: InvoicePreviewProps) {
                 <td className="py-4 text-right text-sm text-gray-600">{item.quantity}</td>
                 <td className="py-4 text-right text-sm text-gray-600">
                   {sym}
-                  {item.rate.toFixed(2)}
+                  {formatMinorUnits(toMinorUnits(item.rate))}
                 </td>
                 <td className="py-4 text-right text-sm font-medium text-gray-800">
                   {sym}
-                  {(item.quantity * item.rate).toFixed(2)}
+                  {formatMinorUnits(lineAmountMinor(item))}
                 </td>
               </tr>
             ))}
@@ -553,16 +548,19 @@ export default function InvoicePreview({ data }: InvoicePreviewProps) {
           Preview
         </h2>
         <button
+          type="button"
+          disabled={exporting}
+          aria-busy={exporting}
           onClick={handleExportPDF}
           className="flex cursor-pointer items-center rounded-lg bg-blue-600 px-4 py-2 font-medium text-white transition-colors hover:bg-blue-700"
         >
           <DownloadIcon size={16} className="mr-2" />
-          Export PDF
+          {exporting ? 'Exporting…' : 'Export PDF'}
         </button>
       </div>
       <div
         ref={printRef}
-        className="overflow-hidden rounded-xl bg-gray-100 shadow-inner"
+        className="overflow-hidden rounded-xl bg-gray-100 shadow-inner [overflow-wrap:anywhere]"
         style={{ maxHeight: 'calc(100vh - 180px)', overflowY: 'auto' }}
       >
         {getTemplate()}

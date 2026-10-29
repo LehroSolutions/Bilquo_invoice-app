@@ -212,3 +212,7 @@ The current public documentation is available in [`docs/index.html`](docs/index.
 
 Documentation is maintained as canonical Markdown plus generated HTML and JSON counterparts. Run `pnpm docs:build` after changing `docs/current/*.md` and `pnpm docs:check` before a public release.
 <!-- docs-system:end -->
+
+## Production operation
+
+See [PRODUCTION.md](PRODUCTION.md) for verified release checks, configuration, data handling, and recovery.
